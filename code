@@ -1,1 +1,2 @@
-
+with open('http_access_log') as f:
+    [print(line) for line in f.readlines()]
