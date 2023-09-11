@@ -1,21 +1,5 @@
-#trial 1
-with open('http_access_log') as f:
-    [print(line) for line in f.readlines()]
-
-
-theFile = open('http_access_log','r')
-FILE = theFile.readlines()
-theFile.close()
-printList = []
-for line in FILE:
-    if ('TestName' in line) or ('Totals' in line):
-         printList.append(line)
-
-#trial 2
-import re
-import csv
-import collections
-
+import urllib.request as web
+from datetime import datetime
 
 def log_file_reader(http_access_log):
     
