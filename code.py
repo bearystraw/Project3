@@ -1,3 +1,4 @@
+#we coded together on brandon's computer and split up the typing of the code
 import urllib.request as web
 from datetime import datetime
 
@@ -6,4 +7,4 @@ def parse_dates_from_log():
     log_content = f.readlines()
 
 pattern = r'\[(\d{2}/\w{3}/\d{4})'
-dates = [re.search(pattern, line).group(1) for
+dates = [re.search(pattern, line).group(1) for date in dates]
