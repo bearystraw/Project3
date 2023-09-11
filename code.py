@@ -1,10 +1,12 @@
 #we coded together on brandon's computer and split up the typing of the code
-import urllib.request as web
-from datetime import datetime
+import urllib.request
+import os
+import re
+from datatime import datetime, timedelta
 
-def parse_dates_from_log():
-   with open(LOCAL_FILE, 'r') as f:
-    log_content = f.readlines()
+FILE_URL = "https://s3.amazonaws.com/tcmg476/http_access_log"
+LOCAL_FILE = "http_access_log.txt"
 
-pattern = r'\[(\d{2}/\w{3}/\d{4})'
-dates = [re.search(pattern, line).group(1) for date in dates]
+def download_log():
+   if not os.path.exists(LOCAL_FILE):
+      urllib.request.urlretrieve(FILE_URL, LOCAL_FILE)
