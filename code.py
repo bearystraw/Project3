@@ -1,7 +1,10 @@
 import urllib.request as web
 from datetime import datetime
 
-def log_file_reader(http_access_log):
+def downloadFile():
+    dl = web.urlopen('https://s3.amazonaws.com/tcmg476/http_access_log')
+    with open('data.txt', 'wb') as file:
+        file.write(dl.read())
     
     # Get all IP addresses from the log file
     with open(http_access_log) as f:
