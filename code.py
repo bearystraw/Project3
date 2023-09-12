@@ -15,7 +15,7 @@ def parse_dates_from_log():
    with open(LOCAL_FILE, 'r') as f:
       log_content = f.readlines()
 
-pattern = r'\[(\d{2}/\w{3}/\d{4})'
+pattern = r'\(\d{2}/\w{3}/\d{4})'
 dates = [re.search(pattern, line).group(1) for line in log_content if re.search(pattern, line)]
 
 date_objectives = [datetime.strptime(date, "%d/%b%Y") for date in dates]
