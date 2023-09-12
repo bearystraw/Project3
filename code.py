@@ -20,3 +20,25 @@ dates = [re.search(pattern, line).group(1) for line in log)content if re.search(
 
 date_objectives = [datetime.strptime(date, "%d/%b%Y") for date in dates]
 return date_objects
+
+def get_request_counts(dates):
+   end_date = dates[-1]
+   six_months_ago = end_date - timedelta(days=6*30)
+
+   last_six_months_count = sum(1 for date in dates if date > six_months_ago)
+   total_requests = len(dates)
+
+   return total_requests, last_six_months_count
+
+def display_results(total, last_six_months):
+   print(f"Total requests in the last 6 months: {last_six_months}")
+   print(f"Total requests in the log: {total}")
+
+def main():
+   download_log()
+   dates = parse_dates_from_log()
+   total, last_six_months = get_request_counts(dates)
+   display_results(total, last_six_months)
+
+if __name__ == "__main__":
+   main()
