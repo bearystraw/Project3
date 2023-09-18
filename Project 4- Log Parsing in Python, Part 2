@@ -1,19 +1,91 @@
 #We worked together on Brandon's computer and we are splitting up the typing here on Github
 
-#Question 1: How many requests were made on each day? 
-      #
+import os
+import urllib.request
+from datetime import datetime, timedelta
+from collections import defaultdict, Counter
 
-#Question 2:How many requests were made on a week-by-week basis? Per month?
-      #
+LOG_URL = "https://s3.amazonaws.com/tcmg476/http_access_log"
+LOCAL_FILENAME = "http_access_log.txt"
+DATE_FORMAT = "%d/%b/%Y:%H:%M:%S %z"
 
-#Question 3: What percentage of the requests were not successful (any 4xx status code)?
-      #3.90% were not successful
+def download_log():
+    """Download and save the log file."""
+    urllib.request.urlretrieve(LOG_URL, LOCAL_FILENAME)
 
-#Question 4: What percentage of the requests were redirected elsewhere (any 3xx codes)?
-      #
+def analyze_log():
+    daily_counts = defaultdict(int)
+    weekly_counts = defaultdict(int)
+    monthly_counts = defaultdict(int)
+    unsuccessful_requests = 0
+    redirected_requests = 0
+    file_requests = Counter()
 
-#Question 5: What was the most-requested file?
-      #
+    with open(LOCAL_FILENAME, 'r') as f:
+        for line in f:
+            try:
+                date_str = line.split('[')[1].split(']')[0]
+                date_obj = datetime.strptime(date_str, DATE_FORMAT)
+                status_code = int(line.split('" ')[1].split(' ')[0])
+                requested_file = line.split('"GET ')[1].split(' ')[0]
 
-#Question 6: What was the least-requested file
-      #
+                # Counting requests
+                daily_counts[date_obj.date()] += 1
+                weekly_counts[date_obj.isocalendar()[1]] += 1
+                monthly_counts[date_obj.month] += 1
+
+                # Counting status codes
+                if 400 <= status_code < 500:
+                    unsuccessful_requests += 1
+                elif 300 <= status_code < 400:
+                    redirected_requests += 1
+
+                # Counting file requests
+                file_requests[requested_file] += 1
+
+            except (IndexError, ValueError):
+                continue
+
+    return daily_counts, weekly_counts, monthly_counts, unsuccessful_requests, redirected_requests, file_requests
+
+def split_log_by_month():
+    monthly_logs = defaultdict(list)
+
+    with open(LOCAL_FILENAME, 'r') as f:
+        for line in f:
+            try:
+                date_str = line.split('[')[1].split(']')[0]
+                date_obj = datetime.strptime(date_str, DATE_FORMAT)
+                monthly_logs[date_obj.month].append(line)
+            except IndexError:
+                continue
+
+    for month, logs in monthly_logs.items():
+        with open(f'log_month_{month}.txt', 'w') as f:
+            f.writelines(logs)
+
+def main():
+    if not os.path.exists(LOCAL_FILENAME):
+        print("Downloading log file...")
+        download_log()
+
+    daily, weekly, monthly, unsuccessful, redirected, files = analyze_log()
+
+    total_requests = sum(daily.values())
+    most_requested_file = files.most_common(1)[0]
+    least_requested_file = files.most_common()[-1][0]
+
+    print(f"Requests per day: {daily}")
+    print(f"Requests per week: {weekly}")
+    print(f"Requests per month: {monthly}")
+    print(f"Percentage of unsuccessful requests: {(unsuccessful / total_requests) * 100:.2f}%")
+    print(f"Percentage of redirected requests: {(redirected / total_requests) * 100:.2f}%")
+    print(f"Most requested file: {most_requested_file[0]} with {most_requested_file[1]} requests")
+    print(f"Least requested file: {least_requested_file[0]} with {least_requested_file[1]} requests")
+
+    print("Splitting log by month...")
+    split_log_by_month()
+    print("Logs split successfully!")
+
+if __name__ == "__main__":
+    main()
