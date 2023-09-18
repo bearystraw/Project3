@@ -34,7 +34,6 @@ LOCAL_FILENAME = "http_access_log.txt"
 DATE_FORMAT = "%d/%b/%Y:%H:%M:%S %z"
 
 def download_log():
-    """Download and save the log file."""
     urllib.request.urlretrieve(LOG_URL, LOCAL_FILENAME)
 
 def analyze_log():
@@ -53,18 +52,15 @@ def analyze_log():
                 status_code = int(line.split('" ')[1].split(' ')[0])
                 requested_file = line.split('"GET ')[1].split(' ')[0]
 
-                # Counting requests
                 daily_counts[date_obj.date()] += 1
                 weekly_counts[date_obj.isocalendar()[1]] += 1
                 monthly_counts[date_obj.month] += 1
 
-                # Counting status codes
                 if 400 <= status_code < 500:
                     unsuccessful_requests += 1
                 elif 300 <= status_code < 400:
                     redirected_requests += 1
 
-                # Counting file requests
                 file_requests[requested_file] += 1
 
             except (IndexError, ValueError):
